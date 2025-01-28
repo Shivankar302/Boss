@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productivity Dashboard</title>
+    <style>
+
+        /* Global Styles */
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        
+        body, html {
+            
+            margin: 0;
+            padding: 0;
+            font-family: 'Garamond',serif;
+            background-color: #f0f0f0f0;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            background-color: #1b1b1b;
+            color: white;
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px;
+        }
+
+       
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 80px;
+        }
+
+        /* Task List */
+        .task-list {
+            text-align: center;
+            list-style: none;
+            padding: 0;
+        }
+
+        .task-item {
+            align-items: center;
+            background: #ffffff;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-item input {
+            align-items: center;
+            width: 80%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .task-item button {
+            background-color: #ff4f58;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            background-color: #ddd;
+            border-radius: 15px;
+            width: 100%;
+            height: 20px;
+            margin-top: 10px;
+        }
+
+        .progress-bar .progress {
+            background-color: #4caf50;
+            height: 100%;
+            border-radius: 15px;
+        }
+
+        /* Buttons and Dark Mode */
+        .toggle-button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 14px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-button:hover {
+            background-color: #444;
+        }
+
+        .quote {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 30px;
+            font-style: italic;
+        }
+
+        .add{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .task{
+            
+            font-size: 35px;
+            display: flex;
+                justify-content: center;
+                align-items: center;
+        }
+        .section{
+            display: block;
+        }
+
+        .add input{
+            padding: 10px;
+            border-radius: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .task-item input {
+                width: 70%;
+            }
+
+            h1 {
+                font-size: 45px;
+            }
+            .task{
+                font-size: 15px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        
+        <!-- Dark Mode Toggle -->
+        <button class="toggle-button" id="darkModeToggle" >Change Mode</button>
+        
+        <h1>Productivity Dashboard</h1>
+        <br>
+        
+        <div class="task">
+            <h2>Tasks</h2>
+        </div>
+        <!-- Task Management Section -->
+        <div class="add">
+            <input type="text" id="newTaskInput" placeholder="Add new task..." />
+            <button class="toggle-button" id="addTaskButton">Add Task</button>
+
+            <ul class="task-list" id="taskList"></ul>
+        </div>
+        <br>
+        <br>
+
+        <!-- Progress Tracker -->
+        <div>
+            <h2 >Progress Tracker</h2>
+
+            <div class="progress-bar">
+                <div class="progress" id="progressBar" style="width: 0%"></div>
+            </div>
+            <p id="progressPercentage">0% Completed</p>
+        </div>
+        <br>
+        <!-- Motivational Quote -->
+        <div class="quote" id="quoteContainer"></div>
+    </div>
+
+    <script>
+        // Dark Mode Toggle Functionality
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+        const dashboard = document.querySelector('.dashboard');
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+        });
+
+        // Task Management Functionality
+        const addTaskButton = document.getElementById('addTaskButton');
+        const newTaskInput = document.getElementById('newTaskInput');
+        const taskList = document.getElementById('taskList');
+        const progressBar = document.getElementById('progressBar');
+        const progressPercentage = document.getElementById('progressPercentage');
+
+        let tasks = [];
+
+        function updateProgress() {
+            const completedTasks = tasks.filter(task => task.completed).length;
+            const totalTasks = tasks.length;
+            const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+            progressBar.style.width = `${progress}%`;
+            progressPercentage.textContent = `${Math.round(progress)}% Completed`;
+        }
+
+        function renderTasks() {
+            taskList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.classList.add('task-item');
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = task.name;
+                input.disabled = task.completed;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => {
+                    tasks.splice(index, 1);
+                    renderTasks();
+                    updateProgress();
+                });
+
+                input.addEventListener('change', () => {
+                    task.name = input.value;
+                });
+
+                const completeButton = document.createElement('button');
+                completeButton.textContent = task.completed ? 'Mark Incomplete' : 'Mark Complete';
+                completeButton.addEventListener('click', () => {
+                    task.completed = !task.completed;
+                    renderTasks();
+                    updateProgress();
+                });
+
+                li.appendChild(input);
+                li.appendChild(completeButton);
+                li.appendChild(deleteButton);
+                taskList.appendChild(li);
+            });
+        }
+
+        addTaskButton.addEventListener('click', () => {
+            const taskName = newTaskInput.value.trim();
+            if (taskName) {
+                tasks.push({ name: taskName, completed: false });
+                newTaskInput.value = '';
+                renderTasks();
+                updateProgress();
+            }
+        });
+
+        // Motivational Quote
+        const quotes = [
+            "The only way to do great work is to love what you do.",
+            "Success is the sum of small efforts, repeated day in and day out.",
+            "Do something today that your future self will thank you for.",
+            "The secret of getting ahead is getting started.",
+            "Don't watch the clock; do what it does. Keep going."
+        ];
+
+        const quoteContainer = document.getElementById('quoteContainer');
+        quoteContainer.textContent = quotes[new Date().getDate() % quotes.length];
+
+        // Initial Render
+        renderTasks();
+        updateProgress();
+
+    </script>
+
+</body>
+</html>
